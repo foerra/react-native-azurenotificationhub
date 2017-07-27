@@ -35,6 +35,7 @@ NSString *const RCTErrorInvalidArguments                        = @"E_INVALID_AR
 // Keys
 NSString *const RCTConnectionStringKey                          = @"connectionString";
 NSString *const RCTHubNameKey                                   = @"hubName";
+NSString *const RCTHubTags                                      = @"tags";
 
 @implementation RCTConvert (UILocalNotification)
 
@@ -69,6 +70,8 @@ NSString *const RCTHubNameKey                                   = @"hubName";
     
     // The Notification Hub name
     NSString *_hubName;
+
+    NSSet *_tags;
 }
 
 static NSDictionary *RCTFormatLocalNotification(UILocalNotification *notification)
@@ -444,6 +447,8 @@ RCT_EXPORT_METHOD(register:(nonnull NSString *)deviceToken
     // Store the connection string and hub name
     _connectionString = [config objectForKey:RCTConnectionStringKey];
     _hubName = [config objectForKey:RCTHubNameKey];
+    NSArray* tagsArray = [config objectForKey:RCTHubTags];
+    _tags = [NSSet setWithArray:tagsArray];
     
     // Check arguments
     if (![self assertArguments:reject])
@@ -459,7 +464,7 @@ RCT_EXPORT_METHOD(register:(nonnull NSString *)deviceToken
     dispatch_async(dispatch_get_main_queue(), ^
     {
        [hub registerNativeWithDeviceToken:deviceToken
-                                     tags:nil
+                                     tags:_tags
                                completion:^(NSError* error)
         {
             if (error != nil)
